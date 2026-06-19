@@ -1,9 +1,22 @@
+from db import SessionLocal, engine
+from models import Base
 from crud import get_categories, get_books
 
-print("Категории:")
-for row in get_categories():
-    print(f"  {row[0]}: {row[1]}")
+# Создаём таблицы через SQLAlchemy (вместо ручных SQL-запросов)
+Base.metadata.create_all(bind=engine)
 
-print("\nКниги:")
-for row in get_books():
-    print(f"  {row[0]}: {row[1]} - {row[2]} ({row[3]})")
+def main():
+    db = SessionLocal()
+
+    print("Категории:")
+    for row in get_categories(db):
+        print(f"  {row.id}: {row.title}")
+
+    print("\nКниги:")
+    for row in get_books(db):
+        print(f"  {row.id}: {row.title} - {row.price} руб.")
+
+    db.close()
+
+if __name__ == "__main__":
+    main()

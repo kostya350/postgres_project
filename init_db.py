@@ -1,42 +1,74 @@
-from db import get_connection
+from db import SessionLocal, engine
+from models import Base, Category, Book
 
-conn = get_connection()
-cur = conn.cursor()
+def init_db():
+    # ШАГ 1: СОЗДАЁМ ТАБЛИЦЫ (если их нет)
+    Base.metadata.create_all(bind=engine)
+    print("Таблицы созданы (или уже существуют).")
 
-cur.execute("""
-CREATE TABLE IF NOT EXISTS categories (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
-);
-""")
+    db = SessionLocal()
 
-cur.execute("""
-CREATE TABLE IF NOT EXISTS books (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    author TEXT NOT NULL,
-    year INTEGER,
-    category_id INTEGER REFERENCES categories(id)
-);
-""")
+    # ШАГ 2: ПРОВЕРЯЕМ, ЕСТЬ ЛИ УЖЕ ДАННЫЕ
+    if db.query(Category).first():
+        print("Данные уже есть, пропускаем добавление.")
+        db.close()
+        return
 
-cur.execute("INSERT INTO categories (name) VALUES ('Программирование') ON CONFLICT DO NOTHING;")
-cur.execute("INSERT INTO categories (name) VALUES ('Художественная') ON CONFLICT DO NOTHING;")
+    # ШАГ 3: ДОБАВЛЯЕМ НОВЫЕ ДАННЫЕ
+    cat1 = Category(title="Программирование")
+    cat2 = Category(title="Художественная литература")
+    db.add_all([cat1, cat2])
+    db.commit()
 
-cur.execute("""
-INSERT INTO books (title, author, year, category_id)
-VALUES ('Python для начинающих', 'Константин', 2026, 1)
-ON CONFLICT DO NOTHING;
-""")
+    books = [
+        Book(
+            title="Чистый код",
+            description="Книга о принципах написания чистого кода",
+            price=25.99,
+            url="https://example.com/clean-code",
+            category_id=cat1.id
+        ),
+        Book(
+            title="Изучаем Python",
+            description="Книга для начинающих программистов на Python",
+            price=18.50,
+            url="https://example.com/learning-python",
+            category_id=cat1.id
+        ),
+        Book(
+            title="Алгоритмы и структуры данных",
+            description="Базовые алгоритмы для разработчиков",
+            price=30.00,
+            url="https://example.com/algorithms",
+            category_id=cat1.id
+        ),
+        Book(
+            title="Flask: создание веб-приложений",
+            description="Руководство по Flask для создания веб-приложений",
+            price=22.00,
+            url="https://example.com/flask",
+            category_id=cat1.id
+        ),
+        Book(
+            title="Война и мир",
+            description="Эпический роман Льва Толстого",
+            price=12.00,
+            url="https://example.com/war-and-peace",
+            category_id=cat2.id
+        ),
+        Book(
+            title="Преступление и наказание",
+            description="Роман Фёдора Достоевского о морали и преступлении",
+            price=10.00,
+            url="https://example.com/crime-and-punishment",
+            category_id=cat2.id
+        ),
+    ]
 
-cur.execute("""
-INSERT INTO books (title, author, year, category_id)
-VALUES ('Война и мир', 'Толстой', 1869, 2)
-ON CONFLICT DO NOTHING;
-""")
+    db.add_all(books)
+    db.commit()
+    db.close()
+    print("База данных инициализирована!")
 
-conn.commit()
-cur.close()
-conn.close()
-
-print("База данных инициализирована!")
+if __name__ == "__main__":
+    init_db()

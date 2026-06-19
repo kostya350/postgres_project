@@ -1,12 +1,24 @@
-class Category:
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
+from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey
+from sqlalchemy.orm import relationship
+from db import Base
 
-class Book:
-    def __init__(self, id, title, author, year, category_id):
-        self.id = id
-        self.title = title
-        self.author = author
-        self.year = year
-        self.category_id = category_id
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)  # title, а не name!
+
+    books = relationship("Book", back_populates="category")
+
+
+class Book(Base):
+    __tablename__ = "books"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    price = Column(Float, nullable=False)
+    url = Column(String, nullable=True)
+    category_id = Column(Integer, ForeignKey("categories.id"))
+
+    category = relationship("Category", back_populates="books")
