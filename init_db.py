@@ -1,25 +1,25 @@
-from db import SessionLocal, engine
-from models import Base, Category, Book
+from src.db import SessionLocal, engine
+from src.models import Base, Category, Book
 
 def init_db():
-    # ШАГ 1: СОЗДАЁМ ТАБЛИЦЫ (если их нет)
+    # 1. Создаём таблицы в правильном порядке (это исправляет твою ошибку)
     Base.metadata.create_all(bind=engine)
     print("Таблицы созданы (или уже существуют).")
 
     db = SessionLocal()
 
-    # ШАГ 2: ПРОВЕРЯЕМ, ЕСТЬ ЛИ УЖЕ ДАННЫЕ
-    if db.query(Category).first():
-        print("Данные уже есть, пропускаем добавление.")
-        db.close()
-        return
+    # Очищаем старые данные
+    db.query(Book).delete()
+    db.query(Category).delete()
+    db.commit()
 
-    # ШАГ 3: ДОБАВЛЯЕМ НОВЫЕ ДАННЫЕ
+    # Создаём категории
     cat1 = Category(title="Программирование")
     cat2 = Category(title="Художественная литература")
     db.add_all([cat1, cat2])
     db.commit()
 
+    # Книги для категории "Программирование" (4 книги)
     books = [
         Book(
             title="Чистый код",
@@ -49,6 +49,7 @@ def init_db():
             url="https://example.com/flask",
             category_id=cat1.id
         ),
+        # Книги для категории "Художественная литература" (2 книги)
         Book(
             title="Война и мир",
             description="Эпический роман Льва Толстого",

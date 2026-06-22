@@ -1,8 +1,8 @@
-from db import SessionLocal, engine
-from models import Base
-from crud import get_categories, get_books
+from src.db import SessionLocal, engine
+from src.models import Base
+from src.crud import get_categories, get_books
 
-# Создаём таблицы через SQLAlchemy (вместо ручных SQL-запросов)
+# Создаём таблицы через SQLAlchemy
 Base.metadata.create_all(bind=engine)
 
 def main():

@@ -1,12 +1,12 @@
 from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from db import Base
+from src.db import Base
 
 class Category(Base):
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)  # title, а не name!
+    title = Column(String, nullable=False)
 
     books = relationship("Book", back_populates="category")
 

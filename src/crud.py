@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Category, Book
+from src.models import Category, Book
 
 # ---------- Категории ----------
 def get_categories(db: Session, skip: int = 0, limit: int = 100):
